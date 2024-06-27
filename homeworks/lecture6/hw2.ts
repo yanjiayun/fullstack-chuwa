@@ -28,10 +28,12 @@ const persons: Person[] = [
 // fix the error showing in the following code:
 function logPerson(person: Person) {
   let additionalInformation: string;
-  if (person.role) {
+  if (person.role !== undefined && typeof person.role === "string") {
     additionalInformation = person.role;
-  } else {
+  } else if(person.occupation !== undefined && typeof person.occupation === "string") {
     additionalInformation = person.occupation;
+  } else {
+    throw new Error("no role or occupation");
   }
   console.log(` - ${person.name}, ${person.age}, ${additionalInformation}`);
 }

@@ -11,14 +11,43 @@ function sequencePromise(urls) {
     // if you use `fetch`, you have to use browser console to test this homework
     return getJSON(url).then(response => results.push(response));
   }
-  // implement your code here
+  return urls.reduce((promise, url) => {
+    return promise.then(() => fetchOne(url));
+  }, Promise.resolve()).then(() => results);
 
-  return results;
 }
 
 // option 1
 function getJSON(url) {
-  // this is from hw5
+  return new Promise((resolve, reject) => {
+    const options = {
+      headers: {
+        'User-Agent': 'request'
+      }
+    };
+    const request = https.get(url, options, response => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Did not get an OK from the server. Code: ${response.statusCode}`));
+        response.resume();
+      }
+
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(new Error(e.message));
+        }
+      });
+    })
+    request.on('error', err => {
+      reject(new Error(`Encountered an error trying to make a request: ${err.message}`));
+    });
+  });
 }
 
 // option 2
